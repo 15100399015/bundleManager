@@ -6,68 +6,76 @@ import copy from "copy-to-clipboard";
 interface IProps {}
 
 const BundleList: FC<IProps> = (props) => {
-  const { dataSource, columns, page, total, setPage, onSearch, onDelete } =
-    useBundleList([
-      {
-        title: "name",
-        dataIndex: "name",
-        key: "id",
-      },
-      {
-        title: "version",
-        dataIndex: "version",
-        key: "id",
-      },
-      {
-        title: "buildTime",
-        dataIndex: "buildTime",
-        key: "id",
-      },
-      {
-        title: "publishTime",
-        dataIndex: "publishTime",
-        key: "id",
-      },
+  const {
+    dataSource,
+    columns,
+    page,
+    total,
+    loading,
+    setPage,
+    onSearch,
+    onDelete,
+  } = useBundleList([
+    {
+      title: "name",
+      dataIndex: "name",
+      key: "id",
+    },
+    {
+      title: "version",
+      dataIndex: "version",
+      key: "id",
+    },
+    {
+      title: "buildTime",
+      dataIndex: "buildTime",
+      key: "id",
+    },
+    {
+      title: "publishTime",
+      dataIndex: "publishTime",
+      key: "id",
+    },
 
-      {
-        title: "pullCount",
-        dataIndex: "pullCount",
-        key: "id",
+    {
+      title: "pullCount",
+      dataIndex: "pullCount",
+      key: "id",
+    },
+    {
+      title: "bundleSize",
+      dataIndex: "bundleSize",
+      key: "id",
+      render(value, record, index) {
+        return value + "mb";
       },
-      {
-        title: "bundleSize",
-        dataIndex: "bundleSize",
-        key: "id",
-        render(value, record, index) {
-          return value + "mb";
-        },
+    },
+    {
+      title: "ossUrl",
+      dataIndex: "ossUrl",
+      key: "id",
+      render(value, record, index) {
+        return <a onClick={() => handleCopy(value)}>复制</a>;
       },
-      {
-        title: "ossUrl",
-        dataIndex: "ossUrl",
-        key: "id",
-        render(value, record, index) {
-          return <a onClick={() => handleCopy(value)}>复制</a>;
-        },
+    },
+    {
+      title: "description",
+      dataIndex: "description",
+      key: "id",
+    },
+    {
+      title: "action",
+      key: "id",
+      render: (row) => {
+        return (
+          <Space wrap>
+            <a onClick={() => handleDownload(row.ossUrl)}>下载</a>
+            <a onClick={() => onDelete(row)}>删除</a>
+          </Space>
+        );
       },
-      {
-        title: "description",
-        dataIndex: "description",
-        key: "id",
-      },
-      {
-        title: "action",
-        key: "id",
-        render: (row) => {
-          return (
-            <Space wrap>
-              <a onClick={() => handleDownload(row.ossUrl)}>下载</a>
-              <a onClick={() => onDelete(row)}>删除</a>
-            </Space>
-          );
-        },
-      },
-    ]);
+    },
+  ]);
 
   const handleDownload = (ossUrl: string) => {
     window.open(ossUrl);
@@ -112,6 +120,7 @@ const BundleList: FC<IProps> = (props) => {
         }}
         rowKey={"id"}
         bordered
+        loading={loading}
         dataSource={dataSource}
         columns={columns}
         size="small"

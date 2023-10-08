@@ -14,6 +14,7 @@ export const useBundleList = function (columns: ColumnType<BundleEntity>[]) {
     current: 1,
   });
   const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const [dataSource, setDataSource] = useState<any[]>([]);
 
@@ -22,11 +23,13 @@ export const useBundleList = function (columns: ColumnType<BundleEntity>[]) {
   };
 
   const reFetch = async () => {
+    setLoading(true);
     const res = await Apis.bundle.list({
       pageNumber: page.current,
       pageSize: page.size,
       name: searchValue,
     });
+    setLoading(false);
     if (res.ok && res.data) {
       setDataSource(res.data?.list);
       setTotal(res.data.total);
@@ -36,7 +39,9 @@ export const useBundleList = function (columns: ColumnType<BundleEntity>[]) {
     reFetch();
   };
   const onDelete = async (row: any) => {
+    setLoading(true);
     const res = await Apis.bundle.delete(row.id);
+    setLoading(false);
     if (res.ok) {
       message.success("删除成功");
       reFetch();
@@ -54,7 +59,8 @@ export const useBundleList = function (columns: ColumnType<BundleEntity>[]) {
     page: page,
     total: total,
     setPage: onPageChange,
-    onSearch,
-    onDelete,
+    onSearch: onSearch,
+    onDelete: onDelete,
+    loading: loading,
   };
 };
