@@ -19,10 +19,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../public")));
 
-app.use("/", (req, res, next) => {
-  console.log(req.method, "-", req.url);
-  next();
-});
 app.use("/api", router);
 
 main(app, server);
@@ -34,11 +30,6 @@ app.use(function (req, res, next) {
 
 // error handler
 app.use(function (err: any, req: any, res: any) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get("env") === "development" ? err : {};
-
-  // render the error page
   res.status(err.status || 500);
   res.send("error");
 });
