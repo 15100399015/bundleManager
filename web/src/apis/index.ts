@@ -28,6 +28,12 @@ export const bundle = {
       id,
     });
   },
+  checkLastVersion: (name: string) => {
+    return ApiService.post<BundleDeleteResponseType>(
+      "/api/bundle/checkLastVersion",
+      { name }
+    );
+  },
 };
 
 const Apis = {

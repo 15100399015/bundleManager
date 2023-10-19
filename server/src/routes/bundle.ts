@@ -1,24 +1,11 @@
 import { Router } from "express";
 import { getBundleTable } from "../service/database";
 import { ILike } from "typeorm";
-import { deleteBundle } from "../service/aliOss";
+import { deleteBundle, pullBundle } from "../service/aliOss";
+import { Result } from "../utils/response";
 
 export const router = Router();
 
-class Result {
-  static standard(code: number, data: any, message: string) {
-    return { code, message, data };
-  }
-  static data(data: any, message?: string) {
-    return Result.standard(0, data, message || "success");
-  }
-  static warning(data: any, message?: string) {
-    return Result.standard(1, data, message || "warning");
-  }
-  static error(data: any, message?: string) {
-    return Result.standard(2, data, message || "error");
-  }
-}
 
 router.get("/list", async (req, res, next) => {
   const name = req.query.name as string;
@@ -59,16 +46,35 @@ router.delete("/delete", async (req, res, next) => {
 
 // 检查最新版本
 router.post("/checkLastVersion", async (req, res, next) => {
-  const bundleName = String(req.body.busndleName) as string;
+  const name = String(req.body.name) as string;
 
   const bundleTable = getBundleTable();
   const bundle = await bundleTable.findOne({
-    where: { name: bundleName },
+    where: { name },
     order: { versionNumber: "DESC" },
   });
   if (bundle) {
     return res.json(Result.data(bundle));
   } else {
     return res.json(Result.error({}));
+  }
+});
+
+// 检查最新版本
+router.get("/pullLastBundle", async (req, res, next) => {
+  const name = String(req.body.name) as string
+
+  const bundleTable = getBundleTable();
+  const bundle = await bundleTable.findOne({
+    where: { name },
+    order: { versionNumber: "DESC" },
+  });
+  if(bundle){
+    const ossStrame = await pullBundle(bundle.name, bundle.version);
+    res.setHeader("Content-Type", "application/octet-stream")
+    res.setHeader("Content-Disposition", `attachment;filename=${bundle.name}.zip`)
+    ossStrame.stream.pipe(res);
+  }else{
+    res.writeHead(404).end("bundle not find");
   }
 });

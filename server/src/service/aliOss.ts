@@ -8,7 +8,7 @@ export const client = new OSS({
   bucket: process.env.aliOssBucket as string,
 });
 
-const generateObjectPath = (bundleName: string, bundleVersion: string) => {
+export const generateObjectPath = (bundleName: string, bundleVersion: string) => {
   return `jsBundle/${bundleName}/${bundleVersion}.zip`;
 };
 
@@ -19,9 +19,7 @@ export async function putBundle(
   stream: Stream
 ) {
   const ossPath = generateObjectPath(bundleName, bundleVersion);
-
   const putRes = await client.putStream(ossPath, stream);
-
   return {
     ...putRes.res,
     url: client.generateObjectUrl(ossPath),

@@ -6,6 +6,7 @@ import createError from "http-errors";
 import path from "path";
 import cookieParser from "cookie-parser";
 import logger from "morgan";
+import cors from 'cors'
 import main from "./main";
 import { router } from "./routes";
 
@@ -13,6 +14,7 @@ const app = express();
 const server = http.createServer(app);
 const port = process.env.port;
 
+app.use(cors())
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
