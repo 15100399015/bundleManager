@@ -6,7 +6,6 @@ import { Result } from "../utils/response";
 
 export const router = Router();
 
-
 router.get("/list", async (req, res, next) => {
   const name = req.query.name as string;
   const pageSize = Number(req.query.pageSize) || 10;
@@ -61,20 +60,24 @@ router.post("/checkLastVersion", async (req, res, next) => {
 });
 
 // 检查最新版本
-router.get("/pullLastBundle", async (req, res, next) => {
-  const name = String(req.body.name) as string
+router.post("/pullLastBundle", async (req, res, next) => {
+  const name = String(req.body.name) as string;
 
   const bundleTable = getBundleTable();
   const bundle = await bundleTable.findOne({
     where: { name },
     order: { versionNumber: "DESC" },
   });
-  if(bundle){
+  if (bundle) {
     const ossStrame = await pullBundle(bundle.name, bundle.version);
-    res.setHeader("Content-Type", "application/octet-stream")
-    res.setHeader("Content-Disposition", `attachment;filename=${bundle.name}.zip`)
+    res.setHeader("Content-Type", "application/octet-stream");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment;filename=${bundle.name}.zip`
+    );
     ossStrame.stream.pipe(res);
-  }else{
+    await bundleTable.update(bundle.id, { pullCount: bundle.pullCount + 1 });
+  } else {
     res.writeHead(404).end("bundle not find");
   }
 });
