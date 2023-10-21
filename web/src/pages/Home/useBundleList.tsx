@@ -19,7 +19,7 @@ export const useBundleList = function (columns: ColumnType<BundleEntity>[]) {
   const [dataSource, setDataSource] = useState<any[]>([]);
 
   const onPageChange = (newPage: { size: number; current: number }) => {
-    setPage(Object.assign(page, newPage));
+    setPage(Object.assign({}, page, newPage));
   };
 
   const reFetch = async () => {

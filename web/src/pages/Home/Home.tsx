@@ -24,7 +24,9 @@ const BundleList: FC<IProps> = (props) => {
     loading,
     setPage,
     onSearch,
+    onChangeSearchValue,
     onDelete,
+    searchValue,
   } = useBundleList([
     {
       title: "name",
@@ -134,7 +136,13 @@ const BundleList: FC<IProps> = (props) => {
         }}
       >
         <div>
-          <Input placeholder="bundleName"></Input>
+          <Input
+            placeholder="bundleName"
+            value={searchValue}
+            onChange={(e) => {
+              onChangeSearchValue(e.target.value);
+            }}
+          ></Input>
         </div>
         <div>
           <Space wrap>
