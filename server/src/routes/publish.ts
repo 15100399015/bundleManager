@@ -4,9 +4,8 @@ import { putBundle } from "../service/aliOss";
 import { Bundle } from "../database/entity/bundle";
 import { getCurrentTime } from "../utils";
 import { MoreThanOrEqual } from "typeorm";
+import { Transform } from "stream";
 export const router = Router();
-import type { Application } from "express";
-import { Readable, Writable } from "stream";
 
 type bundleMetaDataType = {
   bundleName: string;
@@ -25,7 +24,6 @@ router.post("/push", async (req, res) => {
     bundleMetaData;
   const bundleVersionNumber = Number(bundleVersion.replace(/\./g, ""));
   let bundleSize = 0;
-  req.addListener("data", (data) => (bundleSize += data.length));
 
   const bundleTable = getBundleTable();
   const bundleInfo = await bundleTable.findOne({
@@ -45,8 +43,16 @@ router.post("/push", async (req, res) => {
     );
   }
 
+  const countSize = new Transform({
+    transform(chunk, encoding, callback) {
+      bundleSize += chunk.length;
+      callback(null, chunk);
+    },
+  });
+
+  req.pipe(countSize);
   // 上传文件
-  const ossRes = await putBundle(bundleName, bundleVersion, req);
+  const ossRes = await putBundle(bundleName, bundleVersion, countSize);
 
   // 存储数据库
   const bundle = new Bundle();
